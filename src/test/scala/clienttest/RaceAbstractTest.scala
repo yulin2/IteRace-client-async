@@ -15,6 +15,7 @@ import com.typesafe.config.ConfigParseOptions
 import com.typesafe.config.ConfigResolveOptions
 import edu.illinois.wala.ipa.callgraph.AnalysisOptions
 import com.typesafe.config.Config
+import scala.collection.JavaConversions._
 
 abstract class RaceAbstractTest extends JavaTest {
   debug.activate
@@ -25,7 +26,11 @@ abstract class RaceAbstractTest extends JavaTest {
 
   val localConfig = (entryClass: String, entryMethod: String) => "wala.entry { " +
     "class: " + entryClass + "\n" +
-    "method: " + entryMethod + " \n" +
+  	"method: " + entryMethod + "\n" +
+    "}\n"
+  	
+  val localConfigWithSig = (entrySig: String) => "wala.entry { " +
+    "signature-pattern: \".*" + entrySig + ".*\" \n" +
     "}\n"
 
   val config = (localConfig: String) => ConfigFactory.parseString(localConfig) withFallback ConfigFactory.load("test")
@@ -43,6 +48,13 @@ abstract class RaceAbstractTest extends JavaTest {
 
   def expect(entryClass: String, entryMethod: String, expectedResult: String) = {
     assertEquals(expectedResult, printRaces(analysis(config(localConfig(entryClass, entryMethod)))))
+  }
+  
+  def expect(entrySig: String, expectedResult: String) = {
+    val analysisE = analysis(config(localConfigWithSig(entrySig)))
+    println(analysisE.pa.cg.getEntrypointNodes() mkString "\n")
+    println(analysisE.pa.cg.getEntrypointNodes().head.getMethod().getSignature())
+    assertEquals(expectedResult, printRaces(analysis(config(localConfigWithSig(entrySig)))))
   }
     
   def expect(expectedResult: String): Unit = expect(entryClass, entryMethod, expectedResult)
