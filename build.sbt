@@ -19,4 +19,5 @@ javaOptions += "-Xmx4G"
 
 libraryDependencies ++= Seq(
 "University of Illinois" %% "iterace" % "0.5", 
-"com.novocode" % "junit-interface" % "0.10" % "test")
+"com.novocode" % "junit-interface" % "0.10" % "test",
+"com.google.android" % "android" % "4.1.1.4")
