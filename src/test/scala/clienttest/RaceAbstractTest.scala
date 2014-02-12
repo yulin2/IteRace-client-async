@@ -47,14 +47,24 @@ abstract class RaceAbstractTest extends JavaTest {
     }) + "\n"
 
   def expect(entryClass: String, entryMethod: String, expectedResult: String) = {
-    assertEquals(expectedResult, printRaces(analysis(config(localConfig(entryClass, entryMethod)))))
+    val analysisE = analysis(config(localConfig(entryClass, entryMethod)))
+    println(analysisE.pa.cg)
+    println("entrypoint:" + analysisE.pa.cg.getEntrypointNodes())
+    val result = printRaces(analysisE)
+    println(result)
+    assertEquals(expectedResult, result)
   }
   
   def expect(entrySig: String, expectedResult: String) = {
     val analysisE = analysis(config(localConfigWithSig(entrySig)))
     println(analysisE.pa.cg.getEntrypointNodes() mkString "\n")
-    println(analysisE.pa.cg.getEntrypointNodes().head.getMethod().getSignature())
-    assertEquals(expectedResult, printRaces(analysis(config(localConfigWithSig(entrySig)))))
+    import analysisE._
+    
+//    println(pa.heap.collect({case p: P if p.toString() contains "pubkeydb" => (pa.heap.getSuccNodes(p) flatMap (pa.heap.getPredNodes(_))) mkString "\n"}) mkString "\n-----------\n")
+    
+//    println(analysisE.pa.cg.find(n => n.toString() contains "readKeyFromFile") map {_.ir} mkString "\n")
+//    println(analysisE.pa.cg.getEntrypointNodes().head.getMethod().getSignature())
+    assertEquals(expectedResult, printRaces(analysisE))
   }
     
   def expect(expectedResult: String): Unit = expect(entryClass, entryMethod, expectedResult)

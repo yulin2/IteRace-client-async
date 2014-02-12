@@ -1,5 +1,7 @@
 package asyncsubjects;
 
+import java.util.List;
+
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -7,20 +9,21 @@ import android.os.Bundle;
 public class AndroidTest extends Activity {
 
 	int raceOnMe;
+	Particle particle;
 	
 	static class Particle {
 		int x;
 	}
-
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		AsyncTask<Particle, Void, Void> async = new AsyncTask<Particle, Void, Void>() {
+		class AT extends AsyncTask<Particle, Void, Void> {
 			@Override
 			protected Void doInBackground(Particle... arg0) {
-				raceOnMe = 9;
-				arg0[0].x = 8;
+				raceOnMe = 2;
+				m(arg0[0]);
 				return null;
 			}
 			@Override
@@ -28,9 +31,17 @@ public class AndroidTest extends Activity {
 				
 			}
 		};
-		Particle particle = new Particle();
+		
+		m(particle);
+		particle = new Particle();
+		AT async = new AT();
 		async.execute(particle);
-		raceOnMe = 11;
-		particle.x = 10;
+		raceOnMe = 1;		
+	}
+	
+	
+	
+	private void m(Particle particle) {
+		particle.x = 2;
 	}
 }

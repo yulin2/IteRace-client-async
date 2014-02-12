@@ -21,29 +21,32 @@ class TestAsync extends RaceAbstractTest {
   // TODO: detect race between extracted code and all other public/protected methods
   val entryClasses = Array("Lasyncsubjects/AndroidTest",
     "Lorg/connectbot/PubkeyListActivity",
-    "Lorg/connectbot/PubkeyListActivity\"$12$1\"",
-    "Lorg/connectbot/service/TerminalKeyListener",
+    "Lorg/connectbot/PubkeyListActivity",
+    "Lorg/connectbot/ConsoleActivity", //"Lorg/connectbot/service/TerminalKeyListener", // XXX bridge.transport.write
     "Lorg/connectbot/HostListActivity",
     "Lorg/connectbot/SettingsActivity",
     "Lorg/connectbot/HostEditorActivity",
-    "Lorg/vudroid/core/views/ZoomRoll",
-    "Lorg/vudroid/core/DocumentView\"$3\"",
-    "Lorg/geometerplus/android/fbreader/image/ImageViewActivity",
-    "Lorg/geometerplus/zlibrary/ui/android/view/ZLAndroidPaintContext")
+    "Lorg/vudroid/core/views/ZoomRoll", // XXX what is the signature for this?
+    "Lorg/vudroid/djvudroid/PdfViewerActivity", //"Lorg/vudroid/core/BaseViewerActivity", //"Lorg/vudroid/core/DocumentView\"$3\"", // XXX and this?
+    "Lorg/geometerplus/android/fbreader/image/ImageViewActivity", // XXX myBitmap
+    "Lorg/geometerplus/zlibrary/ui/android/view/ZLAndroidPaintContext", // XXX sig of drawImage
+    "Lcom/artifex/mupdf/MuPDFActivity")
   val entryMethods = Array("onCreate(Landroid/os/Bundle;)V",
-    "onActivityResult(IILandroid/content/Intent;)V",
-    "onClick(Landroid/content/DialogInterface;I)V",
-    "onKey(Landroid/view/View;ILandroid/view/KeyEvent;)Z",
-    "startConsoleActivity()Z",
-    "onCreate(Landroid/os/Bundle;)V",
-    "onCreate(Landroid/os/Bundle;)V",
+    //      "main(\"[\"Ljava/lang/String;)V",
+    "<init>()V",
+    "<init>()V",
+    "<init>()V", //"onKey(Landroid/view/View;ILandroid/view/KeyEvent;)Z",
+    "<init>()V", // "startConsoleActivity()Z",
+    "<init>()V",
+    "<init>()V",
     "<init>(Landroid/content/Context;Lorg/vudroid/core/models/ZoomModel;)V",
-    "run()V",
-    "onCreate(Landroid/os/Bundle;)V",
-    "drawImage(IILorg/geometerplus/zlibrary/core/image/ZLImageData;Lorg/geometerplus/zlibrary/core/view/ZLPaintContext\"$Size\";Lorg/geometerplus/zlibrary/core/view/ZLPaintContext\"$ScalingType\";)V")
+    "<init>()V", //"onCreate(Landroid/os/Bundle;)V", //"run()V",
+    "<init>()V",
+    "blabla()V", //"drawImage(IILorg/geometerplus/zlibrary/core/image/ZLImageData;Lorg/geometerplus/zlibrary/core/view/ZLPaintContext\"$Size\";Lorg/geometerplus/zlibrary/core/view/ZLPaintContext\"$ScalingType\";)V"
+    "<init>()V")
 
   val entryClass = entryClasses(1)
-  override val options = Set[IteRaceOption](Filtering, TwoThreads, BubbleUp)
+  override val options = Set[IteRaceOption](Filtering, TwoThreads, BubbleUp, Synchronized)
 
   override lazy val entryMethod = entryMethods(1)
 
@@ -67,6 +70,8 @@ class TestAsync extends RaceAbstractTest {
 
   @Test def compute10 = expect(entryClasses(10), entryMethods(10), "\n\n")
 
+  @Test def compute11 = expect(entryClasses(11), entryMethods(11), "\n\n")
+  
   @Test def compute0 = expect("Lasyncsubjects/AndroidTest", "onCreate(Landroid/os/Bundle;)V", """
 Loop: async task: Node: < Application, Lasyncsubjects/AndroidTest$1, doInBackground([Lasyncsubjects/AndroidTest$Particle;)Ljava/lang/Void; > Context: Everywhereasyncsubjects.AndroidTest$Particle: asyncsubjects.AndroidTest.onCreate(AndroidTest.java:31)
  .x
@@ -77,4 +82,18 @@ asyncsubjects.AndroidTest: com.ibm.wala.FakeRootClass.fakeRootMethod(FakeRootCla
    (a)  asyncsubjects.AndroidTest.onCreate(AndroidTest.java:33)
    (b)  asyncsubjects.AndroidTest$1.doInBackground(AndroidTest.java:22)
 """)
+
+  def getResult(entryClass: String, entryMethod: String, binaryPath: String, jarPath: String): Unit = {
+    val stringConfig = "wala.dependencies.binary = [" + binaryPath + "]\n" +
+      "wala.dependencies.jar = [" + jarPath + "]\n" +
+      "wala.entry { " +
+      "class: " + entryClass + "\n" +
+      "method: " + entryMethod + "\n" +
+      "}\n"
+      println(stringConfig)
+    val analysisE = analysis(config(stringConfig))
+    println(analysisE.pa.cg)
+    println("entrypoint:" + analysisE.pa.cg.getEntrypointNodes())
+    return printRaces(analysisE)
+  }
 }

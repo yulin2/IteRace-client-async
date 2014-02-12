@@ -10,7 +10,7 @@ class TestAsyncBySig extends RaceAbstractTest {
   import IteRaceOption._
 
   val entrySigs = Array(
-    "org\\\\.connectbot\\\\..*\\\\.on",
+    "org\\\\.connectbot\\\\.PubkeyListActivity\\\\.on.*",
     "org\\\\.vudroid\\\\..*\\\\.on.*",
     "org\\\\.geometerplus\\\\..*\\\\.on")
 
