@@ -32,14 +32,12 @@ public class AndroidTest extends Activity {
 			}
 		};
 		
-		m(particle);
 		particle = new Particle();
+		raceOnMe = 1;
+		m(particle);
 		AT async = new AT();
 		async.execute(particle);
-		raceOnMe = 1;		
 	}
-	
-	
 	
 	private void m(Particle particle) {
 		particle.x = 2;
