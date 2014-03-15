@@ -5,6 +5,11 @@ import iterace.IteRaceOption._
 import iterace.IteRaceOption
 import org.junit.Ignore
 import iterace.stage.RaceAbstractTest
+import iterace.IteRace
+import edu.illinois.wala.ipa.callgraph.AnalysisOptions
+import edu.illinois.wala.ipa.callgraph.Dependency
+import edu.illinois.wala.ipa.callgraph.DependencyNature
+import edu.illinois.wala.ipa.callgraph.AnalysisScope
 
 class TestAsync extends RaceAbstractTest {
   import IteRaceOption._
@@ -20,10 +25,10 @@ class TestAsync extends RaceAbstractTest {
   // 10: false positives
   // TODO: detect race between extracted code and all other public/protected methods
   val entryClasses = Array("Lasyncsubjects/AndroidTest",
-    "Lorg/connectbot/PubkeyListActivity",
-    "Lorg/connectbot/PubkeyListActivity",
-    "Lorg/connectbot/ConsoleActivity", //"Lorg/connectbot/service/TerminalKeyListener", // XXX bridge.transport.write
-    "Lorg/connectbot/HostListActivity",
+    "Lcom/piusvelte/sonet/OAuthLogin",
+    "Lcom/owncloud/android/oc_framework_test_project/TestActivity",
+    "Lcom/allplayers/android/MessageInbox", //"Lorg/connectbot/service/TerminalKeyListener", // XXX bridge.transport.write
+    "Lnet/kw/shrdlu/grtgtfs/RouteselectActivity",
     "Lorg/connectbot/SettingsActivity",
     "Lorg/connectbot/HostEditorActivity",
     "Lorg/vudroid/core/views/ZoomRoll", // XXX what is the signature for this?
@@ -83,7 +88,7 @@ asyncsubjects.AndroidTest: com.ibm.wala.FakeRootClass.fakeRootMethod(FakeRootCla
    (b)  asyncsubjects.AndroidTest$1.doInBackground(AndroidTest.java:22)
 """)
 
-  def getResult(entryClass: String, entryMethod: String, binaryPath: String, jarPath: String): Unit = {
+  def getResult(entryClass: String, entryMethod: String, binaryPath: String, jarPath: String): String = {
     val stringConfig = "wala.dependencies.binary = [" + binaryPath + "]\n" +
       "wala.dependencies.jar = [" + jarPath + "]\n" +
       "wala.entry { " +
@@ -91,7 +96,12 @@ asyncsubjects.AndroidTest: com.ibm.wala.FakeRootClass.fakeRootMethod(FakeRootCla
       "method: " + entryMethod + "\n" +
       "}\n"
       println(stringConfig)
-    val analysisE = analysis(config(stringConfig))
+    
+    val dependencies = jarPath.split(",") map {_.replaceAll("\"", "").trim} map {
+      Dependency(_, DependencyNature.Jar, AnalysisScope.Extension)
+    }
+      
+    val analysisE = IteRace(AnalysisOptions(Seq(), dependencies)(config(stringConfig)), options)
     println(analysisE.pa.cg)
     println("entrypoint:" + analysisE.pa.cg.getEntrypointNodes())
     return printRaces(analysisE)
