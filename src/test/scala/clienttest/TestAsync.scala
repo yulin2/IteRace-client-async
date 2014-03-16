@@ -25,10 +25,10 @@ class TestAsync extends RaceAbstractTest {
   // 10: false positives
   // TODO: detect race between extracted code and all other public/protected methods
   val entryClasses = Array("Lasyncsubjects/AndroidTest",
-    "Lcom/piusvelte/sonet/OAuthLogin",
+    "Lcom/piusvelte/sonet/About",
     "Lcom/owncloud/android/oc_framework_test_project/TestActivity",
     "Lcom/allplayers/android/MessageInbox", //"Lorg/connectbot/service/TerminalKeyListener", // XXX bridge.transport.write
-    "Lnet/kw/shrdlu/grtgtfs/RouteselectActivity",
+    "Lnet/kw/shrdlu/grtgtfs/TimesActivity",
     "Lorg/connectbot/SettingsActivity",
     "Lorg/connectbot/HostEditorActivity",
     "Lorg/vudroid/core/views/ZoomRoll", // XXX what is the signature for this?
@@ -88,8 +88,9 @@ asyncsubjects.AndroidTest: com.ibm.wala.FakeRootClass.fakeRootMethod(FakeRootCla
    (b)  asyncsubjects.AndroidTest$1.doInBackground(AndroidTest.java:22)
 """)
 
-  def getResult(entryClass: String, entryMethod: String, binaryPath: String, jarPath: String): String = {
-    val stringConfig = "wala.dependencies.binary = [" + binaryPath + "]\n" +
+  def getResult(entryClass: String, entryMethod: String, binaryPath: String, jarPath: String, jrePath: String): String = {
+    val stringConfig = "wala.jre-lib-path = " + jrePath + "\n" +
+      "wala.dependencies.binary = [" + binaryPath + "]\n" +
       "wala.dependencies.jar = [" + jarPath + "]\n" +
       "wala.entry { " +
       "class: " + entryClass + "\n" +
